@@ -17,7 +17,7 @@ def obtener_conexion():
     driver = os.getenv("DRIVER")
     server = os.getenv("SERVER")
     database = os.getenv("DATABASE")
-    uid = os.getenv("UID")
+    uid = os.getenv("UID")  # Usuario de la base de datos
     pwd = os.getenv("PASS")
     conexion = pyodbc.connect(
         f'DRIVER={driver};SERVER={server};DATABASE={database};UID={uid};PWD={pwd}'
@@ -27,11 +27,9 @@ def obtener_conexion():
 
 def separar_columnas(linea):
     '''Recibe un String y retora una tupla con los datos separados por comas y sin salto de línea'''
-    columnas = linea.replace('\n', '')
-    columnas.replace('\'', '')
-    columnas.split(',')
+    columnas = linea.replace('\n', '').replace('\'', '') .split(',')
     if len(columnas) == 10:
-        columnas[5] = datetime.strptime(columnas[5], '%d/%m/%Y')
+        columnas[5] = datetime.strptime(columnas[5], '%d/%m/%y')
         return columnas
     else:
         return None
@@ -42,11 +40,11 @@ def lectura(ruta):
     archivo = open(ruta, 'r')
     conexion = obtener_conexion()
     cursor = conexion.cursor()
-    for i, linea in enumerate(archivo):
+    for linea in enumerate(archivo):
         columnas = separar_columnas(linea)
         if columnas:
             cursor.execute(consulta, *columnas)
-        print(i)
+        print(columnas)
     conexion.commit()
 
 
