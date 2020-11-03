@@ -4,8 +4,6 @@ import pyodbc
 import os
 
 
-load_dotenv()
-
 consulta = '''
     INSERT INTO importacion (Id, Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, Importe)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -40,7 +38,7 @@ def lectura(ruta):
     archivo = open(ruta, 'r')
     conexion = obtener_conexion()
     cursor = conexion.cursor()
-    for linea in enumerate(archivo):
+    for linea in archivo:
         columnas = separar_columnas(linea)
         if columnas:
             cursor.execute(consulta, *columnas)
@@ -49,5 +47,6 @@ def lectura(ruta):
 
 
 if __name__ == '__main__':
+    load_dotenv()
     ruta = 'BD_OLAP.TXT'
     lectura(ruta)
