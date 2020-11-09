@@ -1,7 +1,5 @@
 USE almacen
 GO
---
--- ¿Algo más?
 
 -- Pendientes:
 -- 1. Enriquecer la dimensión fecha
@@ -23,7 +21,6 @@ GO
 -- OlapCube: Definir el modelo estrella, las jerarquías y genere el cubo y realice la explotación del cubo.
 
 -- 2. Actualizar el almacén de datos (una tabla de hechos) en tiempo real.
--- Pues tenemos que hacer la tabla de hechos.
 
 
 -- Esta tabla ya está bien.
@@ -177,19 +174,6 @@ GO
 SELECT *
 FROM DimensionTiempo
 GO
-
-/*
-* mes
-* dia
-* diaSemana
-* bimestre
-* trimestre
-* cuatrimestre
-* semestre
-* estacion
-* diaNombre
-* Ya quedó la dimensión tiempo 8)
-*/
 
 /*
 TABLA DE HECHOS: IMPORTACIÓN
