@@ -12,12 +12,9 @@ consulta = '''
 
 def obtener_conexion():
     """Los valores necesarios para la cadena de conexión son definidos en el archivo .env"""
-    driver = os.getenv("DRIVER")
-    server = os.getenv("SERVER")
-    database = os.getenv("DATABASE")
-    conexion = pyodbc.connect(
-        f'DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection=yes;'
-    )
+    connection_string = os.getenv("CONNECTION_STRING")
+    print(connection_string)
+    conexion = pyodbc.connect(connection_string)
     return conexion
 
 
@@ -35,13 +32,13 @@ def lectura(ruta: str):
     '''Lectura por renglón del archivo. Aparentemente la última línea está incompleta'''
     archivo = open(ruta, 'r')
     conexion = obtener_conexion()
-    cursor = conexion.cursor()
+    # cursor = conexion.cursor()
     for linea in archivo:
         columnas = separar_columnas(linea)
-        if columnas:
-            cursor.execute(consulta, *columnas)
+        # if columnas:
+            # cursor.execute(consulta, *columnas)
         print(columnas)
-    conexion.commit()
+    # conexion.commit()
 
 
 if __name__ == '__main__':
