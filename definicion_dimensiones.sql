@@ -47,6 +47,7 @@ CREATE TABLE DimensionTiempo
 	fecha DATE PRIMARY KEY,
 	diaSemana NVARCHAR(9),
 	dia TINYINT,
+	asueto BIT,
 	nombreMes NVARCHAR(10),
 	mes TINYINT,
 	semanaAño TINYINT,
@@ -60,11 +61,11 @@ CREATE TABLE DimensionTiempo
 )
 GO
 
--- DROP TABLE DimensionTiempo
--- GO
+DROP TABLE DimensionTiempo
+GO
 
--- DROP PROCEDURE crearDimensionFecha
--- GO
+DROP PROCEDURE crearDimensionFecha
+GO
 
 -- DELETE FROM DimensionTiempo
 
@@ -160,9 +161,34 @@ BEGIN
 	ELSE 
 		SET @horarioVerano = 0
 
+	-- Días de asueto
+	IF @fechaActual = @añoVarchar + '-01-01'
+		SET @asueto = 1
+
+	ELSE IF @fechaActual = @añoVarchar + '-03-02' 
+		SET @asueto = 1
+
+	ELSE IF @fechaActual = @añoVarchar + '-16-03' 
+		SET @asueto = 1
+
+	ELSE IF @fechaActual = @añoVarchar + '-01-05' 
+		SET @asueto = 1
+
+	ELSE IF @fechaActual = @añoVarchar + '-16-09' 
+		SET @asueto = 1
+
+	ELSE IF @fechaActual = @añoVarchar + '-16-11' 
+		SET @asueto = 1
+
+	ELSE IF @fechaActual = @añoVarchar + '-25-12' 
+		SET @asueto = 1
+
+	ELSE 
+		SET @asueto = 0
+
 	INSERT INTO DimensionTiempo
 	VALUES(
-			@fechaActual, @diaSemana, @dia, @nombreMes ,@mes , @numeroSemana, @año,
+			@fechaActual, @diaSemana, @dia, @asueto, @nombreMes , @mes , @numeroSemana, @año,
 			@horarioVerano, @bimestre, @trimestre, @cuatrimestre, @semestre, @temporada
 		 )
 
@@ -180,10 +206,12 @@ FROM DimensionTiempo
 GO
 
 -- Verificando los meses
-SELECT count(MONTH(Fecha)) as mes FROM Importacion
-Group by MONTH(Fecha)
+SELECT count(MONTH(Fecha)) AS mes
+FROM Importacion
+GROUP BY MONTH(Fecha)
 
-select * from Importacion
+SELECT *
+FROM Importacion
 
 /*
 TABLA DE HECHOS: IMPORTACIÓN
@@ -197,13 +225,13 @@ Transporte
 Marca
 Importe (En millones)
 */
-SELECT Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, (Importe / 1000000) as Importe
+SELECT Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, (Importe / 1000000) AS Importe
 INTO hechosImportacion
 FROM Importacion
 WHERE Movimiento = 'Imports'
 
 SELECT *
-from hechosImportacion
+FROM hechosImportacion
 
 /*
 TABLA DE HECHOS: EXPORTACIÓN
@@ -217,13 +245,13 @@ Transporte
 Marca
 Importe (En millones)
 */
-SELECT Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, (Importe / 1000000) as Importe
+SELECT Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, (Importe / 1000000) AS Importe
 INTO hechosExportacion
 FROM Importacion
 WHERE Movimiento = 'Exports'
 
 SELECT *
-from hechosExportacion
+FROM hechosExportacion
 -- Por categoría
 -- Por país
 -- Por cliente
