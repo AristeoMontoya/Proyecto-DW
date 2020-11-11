@@ -262,7 +262,7 @@ FROM Importacion
 SELECT * from dimensionProducto
 
 -- Por país
-SELECT PaisOrigen
+SELECT PaisOrigen as Paises
 INTO dimensionPais
 FROM 
 (SELECT DISTINCT PaisOrigen FROM Importacion
