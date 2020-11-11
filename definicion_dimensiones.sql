@@ -257,12 +257,14 @@ FROM hechosExportacion
 
 -- Dimensión país
 CREATE TABLE dimensionPais (
+	Id INT PRIMARY KEY IDENTITY,
 	Pais NVARCHAR(50),
 	Tamaño NVARCHAR(30),
 	Continente NVARCHAR(30),
 	Giro NVARCHAR(30)
 )
 GO
+
 
 INSERT INTO dimensionPais (Pais, Tamaño, Continente, Giro) values
 ('Argentina', 'Mediano', 'Latinoamerica', 'Comercio'),
@@ -315,6 +317,7 @@ SELECT * FROM dimensionTransporte
 
 -- Dimensión producto
 CREATE TABLE dimensionProducto (
+	Id INT PRIMARY KEY IDENTITY,
 	Producto NVARCHAR(50),
 	Categoria NVARCHAR(50)
 )
