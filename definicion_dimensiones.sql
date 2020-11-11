@@ -87,7 +87,7 @@ BEGIN
 		@numeroSemana=DATEPART(wk, @fechaActual)
 
 
-	-- Trimestre
+	-- Bimestre
 	IF @mes <= 2
 		SET @bimestre = 1
 
@@ -106,7 +106,7 @@ BEGIN
 	ELSE
 		SET @bimestre = 6
 
-
+		
 	-- Trimestre
 	IF @mes <= 3
 		SET @trimestre = 1
@@ -130,7 +130,7 @@ BEGIN
 
 	ELSE
 		SET @cuatrimestre = 3
-
+		
 
 	-- Semestre
 	IF @mes <= 6
@@ -261,13 +261,45 @@ FROM Importacion
 
 SELECT * from dimensionProducto
 
+
 -- Por país
-SELECT PaisOrigen as Paises
-INTO dimensionPais
-FROM 
-(SELECT DISTINCT PaisOrigen FROM Importacion
-UNION
-SELECT DISTINCT PaisDestino FROM Importacion) as Paises
+CREATE TABLE dimensionPais (
+	Pais NVARCHAR(50),
+	Tamaño NVARCHAR(30),
+	Continente NVARCHAR(30),
+	Giro NVARCHAR(30)
+)
+GO
+
+INSERT INTO dimensionPais (Pais, Tamaño, Continente, Giro) values
+('Argentina', 'Mediano', 'Latinoamerica', 'Comercio'),
+('Australia', 'Grande', 'Oceania', 'Comercio'),
+('Belgium', 'Chico', 'Europa', 'Tecnología'),
+('Belorussia', 'Chico', 'Europa', 'Agricultura'),
+('Brazil', 'Mediano', 'Latinoamerica', 'Agricultura'),
+('Canada', 'Grande', 'Norteamerica', 'Comercio'),
+('China', 'Grande', 'Asia', 'Tecnología'),
+('Croatia', 'Mediano', 'Europa', 'Turismo'),
+('France', 'Chico', 'Europa', 'Tecnología'),
+('Germany', 'Mediano', 'Europa', 'Tecnología'),
+('India', 'Mediano', 'Asia', 'Agricultura'),
+('Ireland', 'Chico', 'Europa', 'Tecnología'),
+('Italy', 'Mediano', 'Europa', 'Turismo'),
+('Japan', 'Mediano', 'Asia', 'Tecnología'),
+('Mexico', 'Mediano', 'Latinoamerica', 'Comercio'),
+('Netherlands', 'Chico', 'Europa', 'Tecnología'),
+('Philippines', 'Chico', 'Asia', 'Agricultura'),
+('Russia', 'Grande', 'Europa', 'Comercio'),
+('Singapore', 'Chico', 'Asia', 'Tecnología'),
+('South Korea', 'Mediano', 'Asia', 'Tecnología'),
+('Spain', 'Mediano', 'Europa', 'Turismo'),
+('Switzerland', 'Mediano', 'Europa', 'Tecnología'),
+('Thailand', 'Mediano', 'Asia', 'Agricultura'),
+('Turkey', 'Mediano', 'Asia', 'Agricultura'),
+('United Arab Emirates', 'Grande', 'Asia', 'comercio'),
+('United Kingdom', 'Grande', 'Europa', 'Comercio'),
+('USA', 'Grande', 'Norteamerica', 'Comercio'),
+('Vietnam', 'Chico', 'Asia', 'Agricultura')
 
 SELECT * FROM dimensionPais
 
