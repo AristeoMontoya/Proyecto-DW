@@ -86,6 +86,7 @@ BEGIN
 		@diaSemana=DATENAME(weekday, @fechaActual),
 		@numeroSemana=DATEPART(wk, @fechaActual)
 
+
 	-- Trimestre
 	IF @mes <= 2
 		SET @bimestre = 1
@@ -261,9 +262,12 @@ FROM Importacion
 SELECT * from dimensionProducto
 
 -- Por país
-SELECT PaisOrigen, PaisDestino
+SELECT PaisOrigen
 INTO dimensionPais
-FROM Importacion
+FROM 
+(SELECT DISTINCT PaisOrigen FROM Importacion
+UNION
+SELECT DISTINCT PaisDestino FROM Importacion) as Paises
 
 SELECT * FROM dimensionPais
 
