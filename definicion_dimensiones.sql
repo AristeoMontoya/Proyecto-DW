@@ -47,6 +47,7 @@ CREATE TABLE DimensionTiempo
 	fecha DATE PRIMARY KEY,
 	diaSemana NVARCHAR(9),
 	dia TINYINT,
+	nombreMes NVARCHAR(10),
 	mes TINYINT,
 	semanaAño TINYINT,
 	año SMALLINT,
@@ -59,11 +60,11 @@ CREATE TABLE DimensionTiempo
 )
 GO
 
-DROP TABLE DimensionTiempo
-GO
+-- DROP TABLE DimensionTiempo
+-- GO
 
-DROP PROCEDURE crearDimensionFecha
-GO
+-- DROP PROCEDURE crearDimensionFecha
+-- GO
 
 -- DELETE FROM DimensionTiempo
 
@@ -71,13 +72,14 @@ CREATE PROCEDURE crearDimensionFecha
 	@fechaActual DATETIME,
 	@fechaFinal DATETIME
 AS
-DECLARE @diaSemana VARCHAR(9), @dia TINYINT, @mes TINYINT, @año SMALLINT, @bimestre TINYINT,
-@trimestre TINYINT, @cuatrimestre TINYINT, @semestre TINYINT, @asueto BIT, @horarioVerano BIT,
-@numeroSemana TINYINT, @temporada NVARCHAR(9), @añoVarchar VARCHAR(4)
+DECLARE @diaSemana VARCHAR(9), @dia TINYINT, @mes TINYINT, @nombreMes NVARCHAR(10),
+@año SMALLINT, @bimestre TINYINT, @trimestre TINYINT, @cuatrimestre TINYINT, @semestre TINYINT,
+@asueto BIT, @horarioVerano BIT, @numeroSemana TINYINT, @temporada NVARCHAR(9), @añoVarchar VARCHAR(4)
 SET LANGUAGE Spanish
 WHILE @fechaActual <= @fechaFinal
 BEGIN
 	SELECT @dia=DATEPART(day, @fechaActual),
+		@nombreMes=DATENAME(month, @fechaActual),
 		@mes=DATEPART(month, @fechaActual),
 		@año=DATEPART(year, @fechaActual),
 		@diaSemana=DATENAME(weekday, @fechaActual),
@@ -160,20 +162,28 @@ BEGIN
 
 	INSERT INTO DimensionTiempo
 	VALUES(
-			@fechaActual, @diaSemana, @dia, @mes, @numeroSemana, @año, @horarioVerano,
-			@bimestre, @trimestre, @cuatrimestre, @semestre, @temporada
+			@fechaActual, @diaSemana, @dia, @nombreMes ,@mes , @numeroSemana, @año,
+			@horarioVerano, @bimestre, @trimestre, @cuatrimestre, @semestre, @temporada
 		 )
 
 	SET @fechaActual += 1
 END
 GO
 
-EXEC crearDimensionFecha '01-01-2015', '01-01-2016'
+-- Creación de la dimensión tiempo
+EXEC crearDimensionFecha '01-01-2015', '01-01-2025'
 GO
 
+-- Seleccionar la dimensión tiempo
 SELECT *
 FROM DimensionTiempo
 GO
+
+-- Verificando los meses
+SELECT count(MONTH(Fecha)) as mes FROM Importacion
+Group by MONTH(Fecha)
+
+select * from Importacion
 
 /*
 TABLA DE HECHOS: IMPORTACIÓN
@@ -214,3 +224,7 @@ WHERE Movimiento = 'Exports'
 
 SELECT *
 from hechosExportacion
+-- Por categoría
+-- Por país
+-- Por cliente
+-- Por transporte

@@ -15,15 +15,13 @@ def obtener_conexion():
     driver = os.getenv("DRIVER")
     server = os.getenv("SERVER")
     database = os.getenv("DATABASE")
-    uid = os.getenv("UID")  # Usuario de la base de datos
-    pwd = os.getenv("PASS")
     conexion = pyodbc.connect(
-        f'DRIVER={driver};SERVER={server};DATABASE={database};UID={uid};PWD={pwd}'
+        f'DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection=yes;'
     )
     return conexion
 
 
-def separar_columnas(linea):
+def separar_columnas(linea: str) -> list:
     '''Recibe un String y retora una tupla con los datos separados por comas y sin salto de línea'''
     columnas = linea.replace('\n', '').replace('\'', '') .split(',')
     if len(columnas) == 10:
@@ -33,7 +31,7 @@ def separar_columnas(linea):
         return None
 
 
-def lectura(ruta):
+def lectura(ruta: str):
     '''Lectura por renglón del archivo. Aparentemente la última línea está incompleta'''
     archivo = open(ruta, 'r')
     conexion = obtener_conexion()
