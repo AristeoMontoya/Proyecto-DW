@@ -254,15 +254,8 @@ WHERE Movimiento = 'Exports'
 SELECT *
 FROM hechosExportacion
 
--- Por categoría
-SELECT DISTINCT Producto 
-INTO dimensionProducto
-FROM Importacion
 
-SELECT * from dimensionProducto
-
-
--- Por país
+-- Dimensión país
 CREATE TABLE dimensionPais (
 	Pais NVARCHAR(50),
 	Tamaño NVARCHAR(30),
@@ -310,12 +303,50 @@ FROM Importacion
 
 SELECT * FROM dimensionMarca
 
-SELECT COUNT(*) FROM dimensionMarca
 
--- Por transporte
+-- Dimensión transporte
 SELECT DISTINCT Transporte
 INTO dimensionTransporte
 FROM Importacion
 
 
 SELECT * FROM dimensionTransporte
+
+
+-- Dimensión producto
+CREATE TABLE dimensionProducto (
+	Producto NVARCHAR(50),
+	Categoria NVARCHAR(50)
+)
+
+-- Algo no está jalando
+-- ya tenias creada la tabla? a mi me jalo a la primera
+-- Parece que no xD 
+
+INSERT INTO dimensionProducto(Producto, Categoria) VALUES
+	('Cosmetics', 'Cuidado personal'),
+	('Tires', 'Refacciones'),
+	('Gas turbines', 'Refacciones'),
+	('Industrial machines', 'Refacciones'),
+	('Dairy', 'Alimentos'),
+	('Machinery and electronics', 'Refacciones'),
+	('Gold', 'Materia prima'),
+	('Optical readers', 'Cuidado personal'),
+	('Aerospace Parts', 'Refacciones'),
+	('Computers', 'Tecnología'),
+	('Wood', 'Materia prima'),
+	('Integrated circuits', 'Tecnología'),
+	('Smartphones', 'Tecnología'),
+	('Meat', 'Alimentos'),
+	('Vehicle parts', 'Refacciones'),
+	('Cereals', 'Alimentos'),
+	('Refined Petroleum', 'Materia prima'),
+	('Crude Petroleum', 'Materia prima'),
+	('Pharmaceuticals', 'Cuidado personal'),
+	('Diamonds', 'Materia prima'),
+	('Coal Briquettes', 'Materia prima'),
+	('Cars', 'Vehículo'),
+	('Rice', 'Alimentos'),
+	('Clothing', 'Textiles')
+
+SELECT * FROM dimensionProducto
