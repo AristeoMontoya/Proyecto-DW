@@ -310,9 +310,12 @@ FROM Importacion
 
 SELECT * FROM dimensionMarca
 
+SELECT COUNT(*) FROM dimensionMarca
+
 -- Por transporte
 SELECT DISTINCT Transporte
 INTO dimensionTransporte
 FROM Importacion
+
 
 SELECT * FROM dimensionTransporte

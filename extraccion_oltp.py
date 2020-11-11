@@ -9,17 +9,15 @@ consulta = '''
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     '''
 
-
 def obtener_conexion():
     """Los valores necesarios para la cadena de conexión son definidos en el archivo .env"""
     connection_string = os.getenv("CONNECTION_STRING")
-    print(connection_string)
     conexion = pyodbc.connect(connection_string)
     return conexion
 
 
 def separar_columnas(linea: str) -> list:
-    '''Recibe un String y retora una tupla con los datos separados por comas y sin salto de línea'''
+    '''Recibe un String y retora una lista con los datos separados por comas y sin salto de línea'''
     columnas = linea.replace('\n', '').replace('\'', '') .split(',')
     if len(columnas) == 10:
         columnas[5] = datetime.strptime(columnas[5], '%d/%m/%y')
