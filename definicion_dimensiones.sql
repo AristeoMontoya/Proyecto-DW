@@ -252,7 +252,31 @@ WHERE Movimiento = 'Exports'
 
 SELECT *
 FROM hechosExportacion
+
 -- Por categoría
+SELECT DISTINCT Producto 
+INTO dimensionProducto
+FROM Importacion
+
+SELECT * from dimensionProducto
+
 -- Por país
--- Por cliente
+SELECT PaisOrigen, PaisDestino
+INTO dimensionPais
+FROM Importacion
+
+SELECT * FROM dimensionPais
+
+-- Por marca
+SELECT DISTINCT Marca 
+INTO dimensionMarca
+FROM Importacion
+
+SELECT * FROM dimensionMarca
+
 -- Por transporte
+SELECT DISTINCT Transporte
+INTO dimensionTransporte
+FROM Importacion
+
+SELECT * FROM dimensionTransporte
