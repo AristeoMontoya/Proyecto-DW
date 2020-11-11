@@ -32,13 +32,13 @@ def lectura(ruta: str):
     '''Lectura por renglón del archivo. Aparentemente la última línea está incompleta'''
     archivo = open(ruta, 'r')
     conexion = obtener_conexion()
-    # cursor = conexion.cursor()
+    cursor = conexion.cursor()
     for linea in archivo:
         columnas = separar_columnas(linea)
-        # if columnas:
-            # cursor.execute(consulta, *columnas)
+        if columnas:
+            cursor.execute(consulta, *columnas)
         print(columnas)
-    # conexion.commit()
+    conexion.commit()
 
 
 if __name__ == '__main__':
