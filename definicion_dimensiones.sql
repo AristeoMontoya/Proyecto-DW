@@ -1,20 +1,6 @@
 USE almacen
 GO
 
--- Pendientes:
--- 1. Enriquecer la dimensión fecha
--- 1.1. Agregar semestre
--- 1.2. Agregar cuatrimestre
--- 1.3. Agregar días de asueto
--- 1.4. Agregar número de semana
--- 1.5. Agregar temporada
--- 2. Extraer los datos del archivo OLTP.
--- 3. Crear la tabla de hechos.
--- 3.1. Modelar importaciones.
--- 3.2. Modelar exportaciones.
--- 4. Crear otras dimensiones supongo xd.
--- 5. Descubrir como se usa OlapCube.
-
 -- En equipo
 -- 1. Tomando el archivo BD_OLAP.TXT realizar las transformaciones requeridas para convertirla en una tabla de un gestor de base de datos relacional. 
 -- Crear una tabla de hechos donde modelen una de las actividades del negocio (Importaciones o exportaciones). 
@@ -24,7 +10,7 @@ GO
 
 
 -- Esta tabla ya está bien.
-CREATE TABLE operaciones
+CREATE TABLE Operaciones
 (
 	Id INT NOT NULL,
 	Movimiento VARCHAR(30),
@@ -40,43 +26,44 @@ CREATE TABLE operaciones
 )
 GO
 
-INSERT INTO operaciones (Id, Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, Importe)
-SELECT * FROM operaciones
-
+INSERT INTO Operaciones
+	(Id, Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, Importe)
+SELECT *
+FROM operaciones
 
 -- A esta hay que seguir metiéndole mano.
 CREATE TABLE DimensionTiempo
 (
-	fecha DATE PRIMARY KEY,
-	diaSemana NVARCHAR(9),
-	dia TINYINT,
-	asueto BIT,
-	nombreMes NVARCHAR(10),
-	mes TINYINT,
-	semanaAño TINYINT,
-	año SMALLINT,
-	horarioVerano BIT,
-	bimestre TINYINT,
-	trimestre TINYINT,
-	cuatrimestre TINYINT,
-	semestre TINYINT,
-	temporada NVARCHAR(9),
+	Fecha DATE PRIMARY KEY,
+	NombreDia NVARCHAR(9),
+	Dia TINYINT,
+	Asueto BIT,
+	NombreMes NVARCHAR(10),
+	Mes TINYINT,
+	SemanaAño TINYINT,
+	Año SMALLINT,
+	HorarioVerano BIT,
+	Bimestre TINYINT,
+	Trimestre TINYINT,
+	Cuatrimestre TINYINT,
+	Semestre TINYINT,
+	Temporada NVARCHAR(9),
 )
 GO
 
-DROP TABLE DimensionTiempo
-GO
+-- DROP TABLE DimensionTiempo
+-- GO
 
-DROP PROCEDURE crearDimensionFecha
-GO
+-- DROP PROCEDURE CrearDimensionFecha
+-- GO
 
 -- DELETE FROM DimensionTiempo
 
-CREATE PROCEDURE crearDimensionFecha
+CREATE PROCEDURE CrearDimensionFecha
 	@fechaActual DATETIME,
 	@fechaFinal DATETIME
 AS
-DECLARE @diaSemana VARCHAR(9), @dia TINYINT, @mes TINYINT, @nombreMes NVARCHAR(10),
+DECLARE @nombreDia VARCHAR(9), @dia TINYINT, @mes TINYINT, @nombreMes NVARCHAR(10),
 @año SMALLINT, @bimestre TINYINT, @trimestre TINYINT, @cuatrimestre TINYINT, @semestre TINYINT,
 @asueto BIT, @horarioVerano BIT, @numeroSemana TINYINT, @temporada NVARCHAR(9), @añoVarchar VARCHAR(4)
 SET LANGUAGE Spanish
@@ -86,7 +73,7 @@ BEGIN
 		@nombreMes=DATENAME(month, @fechaActual),
 		@mes=DATEPART(month, @fechaActual),
 		@año=DATEPART(year, @fechaActual),
-		@diaSemana=DATENAME(weekday, @fechaActual),
+		@nombreDia=DATENAME(weekday, @fechaActual),
 		@numeroSemana=DATEPART(wk, @fechaActual)
 
 
@@ -192,7 +179,7 @@ BEGIN
 
 	INSERT INTO DimensionTiempo
 	VALUES(
-			@fechaActual, @diaSemana, @dia, @asueto, @nombreMes , @mes , @numeroSemana, @año,
+			@fechaActual, @nombreDia, @dia, @asueto, @nombreMes , @mes , @numeroSemana, @año,
 			@horarioVerano, @bimestre, @trimestre, @cuatrimestre, @semestre, @temporada
 		 )
 
@@ -201,7 +188,7 @@ END
 GO
 
 -- Creación de la dimensión tiempo
-EXEC crearDimensionFecha '01-01-2015', '01-01-2025'
+EXEC CrearDimensionFecha '01-01-2015', '01-01-2025'
 GO
 
 -- Seleccionar la dimensión tiempo
@@ -211,7 +198,7 @@ GO
 
 -- Verificando los meses
 SELECT count(MONTH(Fecha)) AS mes
-FROM Importacion
+FROM Operaciones
 GROUP BY MONTH(Fecha)
 
 SELECT *
@@ -238,7 +225,7 @@ SELECT *
 FROM hechosImportacion
 
 -- Dimensión país
-CREATE TABLE dimensionPaises
+CREATE TABLE DimensionPaises
 (
 	Nombre NVARCHAR(50) PRIMARY KEY,
 	Continente NVARCHAR(50),
@@ -253,12 +240,8 @@ CREATE TABLE dimensionPaises
 )
 GO
 
-SELECT *
-FROM dimensionPaises
-GO
-
 BULK
-INSERT dimensionPaises
+INSERT DimensionPaises
 FROM 'D:\Documentos\Escuela\Semestre 9\Temas selectos de base de datos\Proyecto-DW\DimensionPais.csv'
 WITH
 (
@@ -270,39 +253,21 @@ WITH
 GO
 
 SELECT *
-FROM paises
-
--- Por marca
-SELECT DISTINCT Marca
-INTO dimensionMarca
-FROM Importacion
-
-SELECT *
-FROM dimensionMarca
-
-
--- Dimensión transporte
-SELECT DISTINCT Transporte
-INTO dimensionTransporte
-FROM Importacion
-
-
-SELECT *
-FROM dimensionTransporte
-
+FROM DimensionPaises
 
 -- Dimensión producto
-CREATE TABLE dimensionProducto(
+CREATE TABLE DimensionProducto
+(
 	Producto NVARCHAR(50),
 	Categoria NVARCHAR(50),
 	Marca NVARCHAR(50),
 	PRIMARY KEY (Producto, Marca)
 )
-go
+GO
 
 
 BULK
-INSERT dimensionProducto
+INSERT DimensionProducto
 FROM 'D:\Documentos\Escuela\Semestre 9\Temas selectos de base de datos\Proyecto-DW\DimensionProducto.csv'
 WITH
 (
@@ -311,7 +276,9 @@ WITH
 	FIRSTROW = 2,
 	CODEPAGE = '65001'
 )
-go
+GO
 
-select * from dimensionProducto
-go
+
+SELECT *
+FROM DimensionProducto
+GO
