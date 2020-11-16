@@ -1,28 +1,29 @@
-﻿Nombre,Continente,Giro,Regimen,IdiomaPrincipal,Tamaño,Poblacion,PIB,IndiceDesarrollo,Moneda
-Argentina,Latinoamerica,Comerio,Presidencialista,Castellano,Mediano,45,455469,Muy alto,Peso argentino
-Australia,Oceania,Comerio,Monarquía,Inglés,Grande,26,1500000,Muy alto,Dólar australiano
-Belgium,Europa,Tecnología,Monarquía,Neerlandés,Chico,11,562229,Muy alto,Euro
-Belorussia,Europa,Agricultura,Presidencialista,Bieloruso,Chico,9,59246,Muy alto,Rublo bielorruso
-Brazil,Latinoamerica,Agricultura,Presidencialista,Portugués,Mediano,212,1893000,Alto,Real
-Canada,Norteamerica,Comerio,Monarquía,Inglés,Grande,37,1798000,Muy alto,Dólar canadiense
-China,Asia,Tecnología,Socialismo,Chino,Grande,1403,13407000,Alto,Renminbi
-Croatia,Europa,Turismo,Parlamento,Crata,Chico,4,60688,Muy alto,Kuna
-France,Europa,Tecnología,Semipresidencialista,Frances,Chico,67,2707000,Muy alto,Euro
-Germany,Europa,Tecnología,Parlamento,Alemán,Mediano,83,4626000,Muy alto,Euro
-India,Asia,Agricultura,Parlamento,Hindi,Mediano,1372,2454000,Medio,Rupia india
-Ireland,Europa,Tecnología,Parlamento,Irlandés,Chico,4,385142,Muy alto,Euro
-Italy,Europa,Turismo,Parlamento,Italiano,Mediano,60,1989000,Medio,Euro
-Japan,Asia,Tecnología,Monarquía,Japonés,Mediano,126,5167000,Medio,Yen
-Mexico,Latinoamerica,Comerio,Presidencialista,Español,Mediano,128,1322489,Alto,Peso mexicano
-Netherlands,Europa,Tecnología,Monarquía,Neerlandés,Chico,17,966742,Muy alto,Euro
-Philippines,Asia,Agricultura,Presidencialista,Filipino,Chico,109,348593,Alto,Peso filipino
-Singapore,Europa,Tecnología,Parlamento,Inglés,Chico,6,349659,Muy alto,Dólar de Singapur
-South Korea,Asia,Tecnología,Presidencialista,Coreano,Mediano,51,1693000,Muy alto,Won surcoreano
-Spain,Europa,Turismo,Monarquía,Español,Mediano,47,1250000,Muy alto,Euro
-Switzerland,Europa,Tecnología,Parlamento,Alemán,Mediano,8,707570,Muy alto,Franco suizo
-Thailand,Asia,Agricultura,Monarquía,Tailandés,Mediano,65,483739,Alto,Baht tailandés
-Turkey,Asia,Agricultura,Presidencialista,Turco,Mediano,83,813810,Muy alto,Lira turca
-United Arab Emirates,Asia,Comerio,Monarquía,Árabe,Chico,9,411827,Muy alto,Dírham
-United Kingdom,Europa,Comerio,Monarquía,Inglés,Grande,67,2978000,Muy alto,Libra esterlina
-USA,Norteamerica,Comerio,Presidencialista,Inglés,Grande,325,21345000,Muy alto,Dólar estadounidense
-Vietnam,Asia,Agricultura,Socialismo,Vietnamita,Chico,91,240779,Medio,Dong vietnamita
+﻿Id,Nombre,Continente,Giro,Regimen,IdiomaPrincipal,Tamaño,Poblacion,PIB,IndiceDesarrollo,Moneda
+1,Argentina,Latinoamerica,Comerio,Presidencialista,Castellano,Mediano,45,455469,Muy alto,Peso argentino
+2,Australia,Oceania,Comerio,Monarquía,Inglés,Grande,26,1500000,Muy alto,Dólar australiano
+3,Belgium,Europa,Tecnología,Monarquía,Neerlandés,Chico,11,562229,Muy alto,Euro
+4,Belorussia,Europa,Agricultura,Presidencialista,Bieloruso,Chico,9,59246,Muy alto,Rublo bielorruso
+5,Brazil,Latinoamerica,Agricultura,Presidencialista,Portugués,Mediano,212,1893000,Alto,Real
+6,Canada,Norteamerica,Comerio,Monarquía,Inglés,Grande,37,1798000,Muy alto,Dólar canadiense
+7,China,Asia,Tecnología,Socialismo,Chino,Grande,1403,13407000,Alto,Renminbi
+8,Croatia,Europa,Turismo,Parlamento,Crata,Chico,4,60688,Muy alto,Kuna
+9,France,Europa,Tecnología,Semipresidencialista,Frances,Chico,67,2707000,Muy alto,Euro
+10,Germany,Europa,Tecnología,Parlamento,Alemán,Mediano,83,4626000,Muy alto,Euro
+11,India,Asia,Agricultura,Parlamento,Hindi,Mediano,1372,2454000,Medio,Rupia india
+12,Ireland,Europa,Tecnología,Parlamento,Irlandés,Chico,4,385142,Muy alto,Euro
+13,Italy,Europa,Turismo,Parlamento,Italiano,Mediano,60,1989000,Medio,Euro
+14,Japan,Asia,Tecnología,Monarquía,Japonés,Mediano,126,5167000,Medio,Yen
+15,Mexico,Latinoamerica,Comerio,Presidencialista,Español,Mediano,128,1322489,Alto,Peso mexicano
+16,Netherlands,Europa,Tecnología,Monarquía,Neerlandés,Chico,17,966742,Muy alto,Euro
+17,Philippines,Asia,Agricultura,Presidencialista,Filipino,Chico,109,348593,Alto,Peso filipino
+18,Singapore,Europa,Tecnología,Parlamento,Inglés,Chico,6,349659,Muy alto,Dólar de Singapur
+19,South Korea,Asia,Tecnología,Presidencialista,Coreano,Mediano,51,1693000,Muy alto,Won surcoreano
+20,Spain,Europa,Turismo,Monarquía,Español,Mediano,47,1250000,Muy alto,Euro
+21,Switzerland,Europa,Tecnología,Parlamento,Alemán,Mediano,8,707570,Muy alto,Franco suizo
+22,Thailand,Asia,Agricultura,Monarquía,Tailandés,Mediano,65,483739,Alto,Baht tailandés
+23,Turkey,Asia,Agricultura,Presidencialista,Turco,Mediano,83,813810,Muy alto,Lira turca
+24,United Arab Emirates,Asia,Comerio,Monarquía,Árabe,Chico,9,411827,Muy alto,Dírham
+25,United Kingdom,Europa,Comerio,Monarquía,Inglés,Grande,67,2978000,Muy alto,Libra esterlina
+26,USA,Norteamerica,Comerio,Presidencialista,Inglés,Grande,325,21345000,Muy alto,Dólar estadounidense
+27,Vietnam,Asia,Agricultura,Socialismo,Vietnamita,Chico,91,240779,Medio,Dong vietnamita
+28,Russia,Europa,Agricultura,Presidencialista,Russo,Grande,146,1000000,Muy alto,Rublo

@@ -1,0 +1,37 @@
+﻿id,empresa,industria,formaLegal,sede,productoPrincipal,empleados
+1,Xiaomi Corp,Electronica,Empresa privada,China,Teléfonos inteligentes,15222
+2,Honda,Automovilistica,Empresa privada,Japón,Automóviles,181876
+3,Lenovo Group Ltd,Electronica,Empresa privada,China,Computadoras,57000
+4,Boeing Company,Aeroespacial,Empresa privada,EEUU,Aviones,159469
+5,Kumho Tyre Co,Manufactura,Empresa privada,Corea,Manufactura,5010
+6,Aztech Investments Ltd,Naval,Empresa privada,Australia,Navíos,42
+7,Actelion Italia Srl,Farmacéutica,Sociedad anónima,Suiza,Medicamentos,5000
+8,Diet Prom LLC,Alimentos,Empresa privada,Rusia,Alimentos dietéticos,1000
+9,Kinross Gold? Co,Minería,Empresa pública,Canada,Oro,10000
+10,LG Electronics Inc,Electronica,Empresa privada,Corea,Linea blanca,222000
+11,Ma & Electronics Ltd,Electronica,Empresa privada,China,Electrodomésticos,11111
+12,MaJwan Ltd,Farmacéutica,Empresa privada,China,Medicamentos,12147
+13,Oil India Ar Ltd,Petrolera,Empresa privada,India,Petroleo,500000
+14,L Oreal Co,Cuidado personal,Empresa privada,Francia,Shampoo,80870
+15,Huawei Technologies Co,Electronica,Empresa privada,China,Teléfonos inteligentes,65800
+16,Green India Ltd,Alimentos,Empresa privada,Suiza,Alimentos orgánicos,50300
+17,Bayer AG,Farmacéutica,Empresa privada,Alemania,Medicamentos,86140
+18,Panasonic Co,Electronica,Empresa privada,Japón,Baterías,15720
+19,Calzedonia SA,Ropa y calzado,Empresa privada,Italia,Calzado,22600
+20,Incopack Nv,Ropa y calzado,Empresa privada,EEUU,Pantalones,90000
+21,Indian Turbines Ersx,Aeroespacial,Empresa privada,India,Motores,24654
+22,Klorane Corp,Electronica,Empresa privada,Alemania,Refacciones,64658
+23,Auto Parts It S.R.L ,Automovilistica,Empresa privada,Suiza,Refacciones,420666
+24,Shenzhen DJS Co Ltd,Ropa y calzado,Empresa privada,España,Ropa de dama,54022
+25,Cubist Pharma F,Arte,Empresa privada,Portugal,Pinturas,24504
+26,Chevrolet,Automovilistica,Empresa privada,EEUU,Automóviles,24020
+27,ReachExt J.J,Electronica,Empresa privada,EEUU,Luces,24658
+28,Dutch Meat Bv,Alimentos,Empresa privada,Alemania,Carne de res,21455
+29,Meat Beleggingen Bv,Alimentos,Empresa privada,Rusia,Carde de pato,242056
+30,Toyota,Automovilistica,Empresa privada,Japón,Automóviles,450244
+31,Caterpillar Inc,Automovilistica,Empresa privada,EEUU,Tractores,12450
+32,PAO Gazprom,Gasítica,Empresa privada,Rusia,Gas,5140
+33,Black Forest Wood Co,Mueblería,Empresa privada,Canada,Mesas,500
+34,United Technologies Co,Minería,Empresa privada,EEUU,Conglomerado,1500
+35,Amkor Technology Inc,Electronica,Empresa privada,EEUU,Electrodomésticos,29300
+36,Ford,Automovilistica,Empresa privada,EEUU,Automóviles,50000

@@ -12,7 +12,7 @@ GO
 -- Esta tabla ya está bien.
 CREATE TABLE Operaciones
 (
-	Id INT NOT NULL,
+	Id DECIMAL(12) NOT NULL,
 	Movimiento VARCHAR(30),
 	PaisOrigen VARCHAR(30),
 	PaisDestino VARCHAR(30),
@@ -197,12 +197,12 @@ FROM DimensionTiempo
 GO
 
 -- Verificando los meses
-SELECT count(MONTH(Fecha)) AS mes
+SELECT DISTINCT MONTH(Fecha) AS mes
 FROM Operaciones
-GROUP BY MONTH(Fecha)
+ORDER BY mes
 
 SELECT *
-FROM Importacion
+FROM Operaciones
 
 /*
 TABLA DE HECHOS: IMPORTACIÓN
@@ -216,18 +216,45 @@ Transporte
 Marca
 Importe (En millones)
 */
-SELECT Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, (Importe / 1000000) AS Importe
-INTO hechosImportacion
-FROM Importacion
+CREATE TABLE HechosImportacion
+(
+	PaisDestino INT,
+	Fecha DATE,
+	Producto INT,
+	Marca INT,
+	ImporteTotal DECIMAL(10),
+	FOREIGN KEY(PaisDestino) REFERENCES DimensionPaises(Id),
+	FOREIGN KEY(Fecha) REFERENCES DimensionTiempo(Fecha),
+	FOREIGN KEY(Producto) REFERENCES DimensionProducto(Id),
+	FOREIGN KEY(Marca) REFERENCES DimensionMarca(Id)
+)
+GO
+
+
+INSERT INTO HechosImportacion
+	(PaisDestino, Fecha, Producto, Marca, ImporteTotal)
+SELECT dpais.Id, dtiempo.Fecha, dprod.Id, dmarca.Id, Importe AS ImporteTotal
+FROM Operaciones
+	JOIN dimensionPaises AS dpais ON  dpais.NombrePais = Operaciones.PaisDestino
+	JOIN DimensionTiempo AS dtiempo ON dtiempo.Fecha = Operaciones.Fecha
+	JOIN DimensionProducto AS dprod ON dprod.Producto = Operaciones.Producto
+	JOIN DimensionMarca AS dmarca ON dmarca.Empresa = Operaciones.Marca
 WHERE Movimiento = 'Imports'
+GO
+
 
 SELECT *
 FROM hechosImportacion
+GO
+
+SELECT *
+FROM INFORMATION_SCHEMA.TABLES
 
 -- Dimensión país
 CREATE TABLE DimensionPaises
 (
-	Nombre NVARCHAR(50) PRIMARY KEY,
+	Id INT PRIMARY KEY,
+	NombrePais NVARCHAR(50),
 	Continente NVARCHAR(50),
 	Giro NVARCHAR(30),
 	Regimen NVARCHAR(50),
@@ -239,6 +266,7 @@ CREATE TABLE DimensionPaises
 	Moneda NVARCHAR(30)
 )
 GO
+
 
 BULK
 INSERT DimensionPaises
@@ -258,10 +286,9 @@ FROM DimensionPaises
 -- Dimensión producto
 CREATE TABLE DimensionProducto
 (
+	Id INT PRIMARY KEY,
 	Producto NVARCHAR(50),
 	Categoria NVARCHAR(50),
-	Marca NVARCHAR(50),
-	PRIMARY KEY (Producto, Marca)
 )
 GO
 
@@ -278,7 +305,37 @@ WITH
 )
 GO
 
-
 SELECT *
 FROM DimensionProducto
+GO
+
+-- Dimensión Marca
+CREATE TABLE DimensionMarca
+(
+	Id INT PRIMARY KEY,
+	Empresa NVARCHAR(50),
+	Industria NVARCHAR(50),
+	FormaLegal NVARCHAR(50),
+	Sede NVARCHAR(50),
+	ProductoPrincipal NVARCHAR(50),
+	Empleados INT
+)
+GO
+
+
+BULK
+INSERT DimensionMarca
+FROM 'D:\Documentos\Escuela\Semestre 9\Temas selectos de base de datos\Proyecto-DW\DimensionMarca.csv'
+WITH
+(
+	FIELDTERMINATOR = ',',
+	ROWTERMINATOR = '\n',
+	FIRSTROW = 2,
+	CODEPAGE = '65001'
+)
+GO
+
+
+SELECT *
+FROM DimensionMarca
 GO

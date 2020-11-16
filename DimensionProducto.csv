@@ -1,45 +1,25 @@
-﻿Producto,Categoria,Marca,,
-Aerospace Parts,Refacciones,Boeing Company,,
-Aerospace Parts,Refacciones,United Technologies Co,,
-Cars,Vehículo,Chevrolet,,
-Cars,Vehículo,Volkswagen,,
-Cars,Vehículo,DSD Design&Motor,,
-Cars,Vehículo,Rolls-Royce Holdings plc,,
-Cars,Vehículo,Honda,,
-Cars,Vehículo,Ford,,
-Cars,Vehículo,BMW,,
-Cars,Vehículo,Panasonic Co,,
-Cars,Vehículo,Suzuki,,
-Cars,Vehículo,British Motor Company Ltd,,
-Cars,Vehículo,Toyota,,
-Cereals,Alimentos,Diet Prom LLC,,
-Clothing,Textiles,Calzedonia SA,,
-Coal Briquettes,Textiles,Aztech Investments Ltd,,
-Computers,Tecnología,Lenovo Group Ltd,,
-Cosmetics,Cuidado personal,Klorane Corp,,
-Cosmetics,Cuidado personal,L Oreal Co,,
-Crude Petroleum,Materia prima,PAO Gazprom,,
-Dairy,Alimentos,Incopack Nv,,
-Diamonds,Materia prima,MaJwan Ltd,,
-Gas turbines,Materia prima,Indian Turbines Ersx,,
-Gold,Materia prima,Kinross Gold? Co,,
-Industrial machines,Tecnología,Caterpillar Inc,,
-Integrated circuits,Tecnología,LG Electronics Inc,,
-Integrated circuits,Tecnología,Amkor Technology Inc,,
-Machinery and electronics,Refacciones, Ma & Electronics Ltd,,
-Machinery and electronics,Refacciones,Panasonic Co,,
-Machinery and electronics,Refacciones,ReachExt J.J,,
-Meat,Alimentos,Meat Beleggingen Bv,,
-Meat,Alimentos,Dutch Meat Bv,,
-Optical readers,Cuidado personal,Shenzhen DJS Co Ltd,,
-Pharmaceuticals,Cuidado personal,Cubist Pharma F,,
-Pharmaceuticals,Cuidado personal,Actelion Italia Srl,,
-Pharmaceuticals,Cuidado personal,Bayer AG,,
-Refined Petroleum,Materia prima, Oil India Ar Ltd,,
-Rice,Alimentos,Green India Ltd,,
-Rice,Alimentos, Oil India Ar Ltd,,
-Smartphones,Tecnología,Huawei Technologies Co,,
-Smartphones,Tecnología,Xiaomi Corp,,
-Tires,Refacciones,Kumho Tyre Co,,
-Vehicle parts,Refacciones,Auto Parts It S.R.L ,,
-Wood,Materia prima,Black Forest Wood Co,,
+﻿Id,Producto,Categoria
+1,Aerospace Parts,Refacciones
+2,Cars,Vehículo
+3,Cereals,Alimentos
+4,Clothing,Textiles
+5,Coal Briquettes,Textiles
+6,Computers,Tecnología
+7,Cosmetics,Cuidado personal
+8,Crude Petroleum,Materia prima
+9,Dairy,Alimentos
+10,Diamonds,Materia prima
+11,Gas turbines,Materia prima
+12,Gold,Materia prima
+13,Industrial machines,Tecnología
+14,Integrated circuits,Tecnología
+15,Machinery and electronics,Refacciones
+16,Meat,Alimentos
+17,Optical readers,Cuidado personal
+18,Pharmaceuticals,Cuidado personal
+19,Refined Petroleum,Materia prima
+20,Rice,Alimentos
+21,Smartphones,Tecnología
+22,Tires,Refacciones
+23,Vehicle parts,Refacciones
+24,Wood,Materia prima
