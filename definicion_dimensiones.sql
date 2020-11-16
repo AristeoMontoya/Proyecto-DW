@@ -24,7 +24,7 @@ GO
 
 
 -- Esta tabla ya está bien.
-CREATE TABLE Importacion
+CREATE TABLE operaciones
 (
 	Id INT NOT NULL,
 	Movimiento VARCHAR(30),
@@ -39,6 +39,9 @@ CREATE TABLE Importacion
 	PRIMARY KEY (Id)
 )
 GO
+
+INSERT INTO operaciones (Id, Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, Importe)
+SELECT * FROM operaciones
 
 
 -- A esta hay que seguir metiéndole mano.
@@ -106,7 +109,7 @@ BEGIN
 	ELSE
 		SET @bimestre = 6
 
-		
+
 	-- Trimestre
 	IF @mes <= 3
 		SET @trimestre = 1
@@ -130,7 +133,7 @@ BEGIN
 
 	ELSE
 		SET @cuatrimestre = 3
-		
+
 
 	-- Semestre
 	IF @mes <= 6
@@ -234,76 +237,48 @@ WHERE Movimiento = 'Imports'
 SELECT *
 FROM hechosImportacion
 
-/*
-TABLA DE HECHOS: EXPORTACIÓN
-Movimiento
-PaisOrigen
-PaisDestino
-Año
-Fecha
-Producto
-Transporte
-Marca
-Importe (En millones)
-*/
-SELECT Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, (Importe / 1000000) AS Importe
-INTO hechosExportacion
-FROM Importacion
-WHERE Movimiento = 'Exports'
-
-SELECT *
-FROM hechosExportacion
-
-
 -- Dimensión país
-CREATE TABLE dimensionPais (
-	Id INT PRIMARY KEY IDENTITY,
-	Pais NVARCHAR(50),
-	Tamaño NVARCHAR(30),
-	Continente NVARCHAR(30),
-	Giro NVARCHAR(30)
+CREATE TABLE dimensionPaises
+(
+	Nombre NVARCHAR(50) PRIMARY KEY,
+	Continente NVARCHAR(50),
+	Giro NVARCHAR(30),
+	Regimen NVARCHAR(50),
+	IdiomaPrincipal NVARCHAR(20),
+	Tamaño NVARCHAR(15),
+	Poblacion INT,
+	PIB BIGINT,
+	IndiceDeDesarrollo NVARCHAR(30),
+	Moneda NVARCHAR(30)
 )
 GO
 
+SELECT *
+FROM dimensionPaises
+GO
 
-INSERT INTO dimensionPais (Pais, Tamaño, Continente, Giro) values
-('Argentina', 'Mediano', 'Latinoamerica', 'Comercio'),
-('Australia', 'Grande', 'Oceania', 'Comercio'),
-('Belgium', 'Chico', 'Europa', 'Tecnología'),
-('Belorussia', 'Chico', 'Europa', 'Agricultura'),
-('Brazil', 'Mediano', 'Latinoamerica', 'Agricultura'),
-('Canada', 'Grande', 'Norteamerica', 'Comercio'),
-('China', 'Grande', 'Asia', 'Tecnología'),
-('Croatia', 'Mediano', 'Europa', 'Turismo'),
-('France', 'Chico', 'Europa', 'Tecnología'),
-('Germany', 'Mediano', 'Europa', 'Tecnología'),
-('India', 'Mediano', 'Asia', 'Agricultura'),
-('Ireland', 'Chico', 'Europa', 'Tecnología'),
-('Italy', 'Mediano', 'Europa', 'Turismo'),
-('Japan', 'Mediano', 'Asia', 'Tecnología'),
-('Mexico', 'Mediano', 'Latinoamerica', 'Comercio'),
-('Netherlands', 'Chico', 'Europa', 'Tecnología'),
-('Philippines', 'Chico', 'Asia', 'Agricultura'),
-('Russia', 'Grande', 'Europa', 'Comercio'),
-('Singapore', 'Chico', 'Asia', 'Tecnología'),
-('South Korea', 'Mediano', 'Asia', 'Tecnología'),
-('Spain', 'Mediano', 'Europa', 'Turismo'),
-('Switzerland', 'Mediano', 'Europa', 'Tecnología'),
-('Thailand', 'Mediano', 'Asia', 'Agricultura'),
-('Turkey', 'Mediano', 'Asia', 'Agricultura'),
-('United Arab Emirates', 'Grande', 'Asia', 'comercio'),
-('United Kingdom', 'Grande', 'Europa', 'Comercio'),
-('USA', 'Grande', 'Norteamerica', 'Comercio'),
-('Vietnam', 'Chico', 'Asia', 'Agricultura')
+BULK
+INSERT dimensionPaises
+FROM 'D:\Documentos\Escuela\Semestre 9\Temas selectos de base de datos\Proyecto-DW\DimensionPais.csv'
+WITH
+(
+	FIELDTERMINATOR = ',',
+	ROWTERMINATOR = '\n',
+	FIRSTROW = 2,
+	CODEPAGE = '65001'
+)
+GO
 
-SELECT * FROM dimensionPais
+SELECT *
+FROM paises
 
 -- Por marca
-SELECT DISTINCT Marca 
+SELECT DISTINCT Marca
 INTO dimensionMarca
 FROM Importacion
 
-SELECT * FROM dimensionMarca
+SELECT *
+FROM dimensionMarca
 
 
 -- Dimensión transporte
@@ -312,44 +287,31 @@ INTO dimensionTransporte
 FROM Importacion
 
 
-SELECT * FROM dimensionTransporte
+SELECT *
+FROM dimensionTransporte
 
 
 -- Dimensión producto
-CREATE TABLE dimensionProducto (
-	Id INT PRIMARY KEY IDENTITY,
+CREATE TABLE dimensionProducto(
 	Producto NVARCHAR(50),
-	Categoria NVARCHAR(50)
+	Categoria NVARCHAR(50),
+	Marca NVARCHAR(50),
+	PRIMARY KEY (Producto, Marca)
 )
+go
 
--- Algo no está jalando
--- ya tenias creada la tabla? a mi me jalo a la primera
--- Parece que no xD 
 
-INSERT INTO dimensionProducto(Producto, Categoria) VALUES
-	('Cosmetics', 'Cuidado personal'),
-	('Tires', 'Refacciones'),
-	('Gas turbines', 'Refacciones'),
-	('Industrial machines', 'Refacciones'),
-	('Dairy', 'Alimentos'),
-	('Machinery and electronics', 'Refacciones'),
-	('Gold', 'Materia prima'),
-	('Optical readers', 'Cuidado personal'),
-	('Aerospace Parts', 'Refacciones'),
-	('Computers', 'Tecnología'),
-	('Wood', 'Materia prima'),
-	('Integrated circuits', 'Tecnología'),
-	('Smartphones', 'Tecnología'),
-	('Meat', 'Alimentos'),
-	('Vehicle parts', 'Refacciones'),
-	('Cereals', 'Alimentos'),
-	('Refined Petroleum', 'Materia prima'),
-	('Crude Petroleum', 'Materia prima'),
-	('Pharmaceuticals', 'Cuidado personal'),
-	('Diamonds', 'Materia prima'),
-	('Coal Briquettes', 'Materia prima'),
-	('Cars', 'Vehículo'),
-	('Rice', 'Alimentos'),
-	('Clothing', 'Textiles')
+BULK
+INSERT dimensionProducto
+FROM 'D:\Documentos\Escuela\Semestre 9\Temas selectos de base de datos\Proyecto-DW\DimensionProducto.csv'
+WITH
+(
+	FIELDTERMINATOR = ',',
+	ROWTERMINATOR = '\n',
+	FIRSTROW = 2,
+	CODEPAGE = '65001'
+)
+go
 
-SELECT * FROM dimensionProducto
+select * from dimensionProducto
+go

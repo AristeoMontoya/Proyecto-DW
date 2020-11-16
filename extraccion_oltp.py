@@ -5,7 +5,7 @@ import os
 
 
 consulta = '''
-    INSERT INTO importacion (Id, Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, Importe)
+    INSERT INTO operaciones (Id, Movimiento, PaisOrigen, PaisDestino, Año, Fecha, Producto, Transporte, Marca, Importe)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     '''
 
