@@ -5,7 +5,7 @@ GO
 CREATE TABLE Docencia
 (
 	Esc INT,
-	CveEmp INT PRIMARY KEY,
+	CveEmp INT,
 	Horas INT
 )
 GO
@@ -13,7 +13,7 @@ GO
 CREATE TABLE Asesoria
 (
 	Esc INT,
-	CveEmp INT PRIMARY KEY,
+	CveEmp INT,
 	Horas INT
 )
 GO
@@ -21,35 +21,35 @@ GO
 CREATE TABLE Inv
 (
 	Esc INT,
-	CveEmp INT PRIMARY KEY,
+	CveEmp INT,
 	Horas INT
 )
 GO
 
 CREATE TABLE TADocencia
 (
-	CveEmp INT PRIMARY KEY,
+	CveEmp INT,
 	DWSumHoras INT
 )
 GO
 
 CREATE TABLE TAAsesoria
 (
-	CveEmp INT PRIMARY KEY,
+	CveEmp INT,
 	DWSumHoras INT
 )
 GO
 
 CREATE TABLE TAInv
 (
-	CveEmp INT PRIMARY KEY,
+	CveEmp INT,
 	DWSumHoras INT
 )
 GO
 
 CREATE TABLE TablaVH
 (
-	CveEmp INT PRIMARY KEY,
+	CveEmp INT,
 	UltimoVN INT
 )
 GO
@@ -72,6 +72,7 @@ CREATE TABLE TablaVD
 	operacion VARCHAR(6)
 )
 GO
+
 
 -- El trigger, aquí se pone bueno
 CREATE TRIGGER actualizarDocenciaInsert
@@ -806,4 +807,73 @@ BEGIN
 		UPDATE TablaControl SET MaintenanceActive = 'True'
 	END
 END
+GO
+
+
+
+SELECT *
+FROM TADocencia GO
+
+SELECT *
+FROM TAAsesoria GO
+
+SELECT *
+FROM TAInv GO
+
+SELECT *
+FROM TablaVH GO
+
+SELECT *
+FROM TablaVD GO
+
+SELECT *
+FROM TablaControl GO
+
+
+INSERT INTO TablaControl
+VALUES(1, 0)
+GO
+
+UPDATE TablaControl SET CurrentVN = 2, MaintenanceActive = 'false'
+
+INSERT INTO Docencia
+VALUES
+	(20, 5, 10)
+	GO
+
+INSERT INTO Inv
+VALUES
+	(20, 5, 5)
+	GO
+
+INSERT INTO Asesoria
+VALUES
+	(20, 5, 3)
+	GO
+
+INSERT INTO Asesoria
+VALUES
+	(30, 5, 15)
+	GO
+
+DELETE FROM Asesoria WHERE Esc = 30 AND CveEmp = 5 AND Horas = 4
+DELETE FROM Asesoria WHERE Esc = 20 AND CveEmp = 5 AND Horas = 3
+
+-- DELETES
+DELETE FROM TADocencia 
+GO
+
+DELETE FROM TAAsesoria 
+GO
+
+DELETE FROM TAInv 
+GO
+
+DELETE FROM TablaVH 
+GO
+
+DELETE FROM TablaVD 
+GO
+
+DELETE FROM TablaControl 
 GO
