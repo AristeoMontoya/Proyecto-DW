@@ -221,7 +221,7 @@ GO
 
 
 INSERT INTO Docencia
-VALUES(20, 5, 50)
+VALUES(20, 5, 10)
 GO
 
 DELETE FROM Docencia WHERE CveEmp = 5 AND Esc = 20 AND Horas = 50
@@ -381,7 +381,6 @@ BEGIN
 		IF (@id NOT IN (SELECT CveEmp
 		FROM TablaVH))
 		BEGIN
-			PRINT 'NO SE ENCONTRÓ EN VH. INSERTANDO'
 			INSERT INTO TablaVH
 			VALUES(@id, @sesion)
 
@@ -391,7 +390,6 @@ BEGIN
 		END
 		ELSE
 		BEGIN
-			PRINT 'ESTABA EN VH. ACTUALIZANDO'
 			SELECT VnInicio, VnFin
 			INTO #IniFin
 			FROM TablaVD
@@ -400,7 +398,6 @@ BEGIN
 			IF (SELECT VnInicio
 			FROM #IniFin) = @sesion
 			BEGIN
-				PRINT 'CAMBIO DE VERSION'
 				SELECT
 					@HDoc = HDoc,
 					@HAse = HAse,
@@ -411,7 +408,6 @@ BEGIN
 			END
 			ELSE
 			BEGIN
-				PRINT 'NO HUBO CAMBIO DE VERSION'
 				UPDATE TablaVD SET VNFin = @sesion - 1 
 				WHERE CveEmp = @id AND VnFin = 2147000
 
