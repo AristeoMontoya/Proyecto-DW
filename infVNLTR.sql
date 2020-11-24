@@ -74,7 +74,7 @@ CREATE TABLE TablaVD
 GO
 
 
--- El trigger, aquí se pone bueno
+-- Comeinzo del trigger
 CREATE TRIGGER actualizarDocenciaInsert
 ON Docencia
 AFTER INSERT
