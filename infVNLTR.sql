@@ -32,7 +32,8 @@ GO
 CREATE TABLE TAuxDocencia
 (
 	CveEmp INT PRIMARY KEY,
-	DWSumHoras INT
+	DWSumHoras INT,
+	DWMaxHoras INT
 )
 GO
 
@@ -73,6 +74,10 @@ CREATE TABLE TablaVD
 	HDoc INT,
 	HAse INT,
 	HInv INT,
+	MaxDoc INT,
+	CountAse INT,
+	AvgAse NUMERIC(6, 2),
+	CountInv INT,
 	VnInicio INT,
 	VnFin INT,
 	operacion VARCHAR(6),
@@ -80,15 +85,27 @@ CREATE TABLE TablaVD
 )
 GO
 
+CREATE TABLE AsociadaDocencia 
+(
+	CveEmp INT,
+	AttrNombre VARCHAR(15),
+	AttrValor INT,
+	AttrVeces INT,
+	PRIMARY KEY(CveEmp, AttrValor)
+)
+
+
 -- PROCEDIMIENTO ALMACENADO
-CREATE PROCEDURE usp_updateDW (@id INT, @operacion NVARCHAR(6))
+CREATE PROCEDURE usp_updateDW (@id INT, @operacion VARCHAR(6))
 AS
 BEGIN
 	DECLARE @sesion INT, @VnIni INT, @VnFin INT, @HDoc INT, @HAse INT,
-	@HInv INT, @suma INT
+	@HInv INT, @suma INT, @maxDoc INT, @countAse INT, @avgAse NUMERIC(6, 2), @countInv INT
 
 
 	SELECT t1.CveEmp, t1.DWSumHoras AS HDoc, t2.DWSumHoras AS HAse, t3.DWSumHoras AS HInv,
+	t1.DWMaxHoras AS MaxDoc, t2.DWCountHoras AS CountAse, t2.DWAvgHoras AS AvgAse,
+	t3.DWCountHoras AS CountInv,
 		(t1.DWSumHoras + t2.DWSumHoras + t3.DWSumHoras) AS acumulado
 	INTO #TWD
 	FROM TAuxDocencia t1
@@ -175,7 +192,7 @@ BEGIN
 
 			-- Insertamos en la tabla de hechos
 			INSERT INTO TablaVD
-			SELECT CveEmp, HDoc, HAse, HInv, @sesion, 2147000, @operacion
+			SELECT CveEmp, HDoc, HAse, HInv, MaxDoc, CountAse, AvgAse, CountInv, @sesion, 2147000, @operacion
 			FROM #TWD
 		END
 		ELSE
@@ -193,10 +210,15 @@ BEGIN
 				SELECT
 					@HDoc = HDoc,
 					@HAse = HAse,
-					@HInv = HInv
+					@HInv = HInv,
+					@maxDoc = MaxDoc,
+					@countAse = CountAse,
+					@avgAse = AvgAse,
+					@countInv = CountInv
 				FROM #TWD
 
-				UPDATE TablaVD SET HDoc = @HDoc, HAse = @HAse, HInv = @HInv, operacion = @operacion
+				UPDATE TablaVD SET HDoc = @HDoc, HAse = @HAse, HInv = @HInv, MaxDoc = @maxDoc, CountAse = @countAse,
+				AvgAse = @avgAse, CountInv = @countInv,operacion = @operacion
 			END
 			ELSE
 			BEGIN
@@ -205,7 +227,7 @@ BEGIN
 					WHERE CveEmp = @id AND VnFin = 2147000
 
 				INSERT INTO TablaVD
-				SELECT CveEmp, HDoc, HAse, HInv, @sesion, 2147000, @operacion
+				SELECT CveEmp, HDoc, HAse, HInv, MaxDoc, CountAse, AvgAse, CountInv, @sesion, 2147000, @operacion
 				FROM #TWD
 			END
 		END
@@ -225,7 +247,7 @@ AFTER INSERT
 AS
 BEGIN
 	SET NOCOUNT ON
-	DECLARE @esc INT, @id INT, @horas INT, @operacion NVARCHAR(6)
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6)
 
 	-- Recuperación de los datos de la tabla inserted
 	SET @operacion = 'insert'
@@ -240,8 +262,10 @@ BEGIN
 	BEGIN
 		-- Si no está en la tabla auxiliar se agrega
 		INSERT INTO TAuxDocencia
-			(CveEmp, DWSumHoras)
-		VALUES(@id, @horas)
+			(CveEmp, DWSumHoras, DWMaxHoras)
+		VALUES(@id, @horas, @horas)
+
+		INSERT INTO AsociadaDocencia VALUES(@id, 'Horas', @horas, 1)
 	END
 	ELSE
 	BEGIN
@@ -249,6 +273,29 @@ BEGIN
 		UPDATE TAuxDocencia
 		SET DWSumHoras += @horas
 		WHERE CveEmp = @id
+
+		IF EXISTS(SELECT * FROM AsociadaDocencia 
+		WHERE CveEmp = @id AND AttrValor = @horas)
+		BEGIN
+			
+			UPDATE AsociadaDocencia SET AttrVeces = AttrVeces + 1
+			WHERE CveEmp = @id AND AttrValor = @horas
+		END
+		ELSE
+		BEGIN
+
+			INSERT INTO AsociadaDocencia VALUES(@id, 'Horas', @horas, 1)
+			
+			DECLARE @dwmax INT
+			SELECT @dwmax = DWMaxHoras FROM TAuxDocencia
+			
+			IF @horas > @dwmax
+			BEGIN
+			
+				UPDATE TAuxDocencia SET DWMaxHoras = @horas
+				WHERE CveEmp = @id
+			END
+		END
 	END
 	
 	EXEC usp_updateDW @id, @operacion
@@ -262,8 +309,8 @@ AFTER DELETE
 AS
 BEGIN
 	SET NOCOUNT ON
-	DECLARE @esc INT, @id INT, @horas INT, @operacion NVARCHAR(6), @sesion INT, @suma INT,
-	@HDoc INT, @HAse INT, @HInv INT
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6), @sesion INT, @suma INT,
+	@HDoc INT, @HAse INT, @HInv INT, @attrVeces INT, @maximo INT
 
 	SET @operacion = 'delete'
 	SELECT @esc = Esc, @id = CveEmp, @horas = Horas
@@ -272,6 +319,28 @@ BEGIN
 	UPDATE TAuxDocencia
 	SET DWSumHoras -= @horas
 	WHERE CveEmp = @id
+	
+	SELECT @attrVeces = AttrVeces - 1 FROM AsociadaDocencia
+
+	UPDATE AsociadaDocencia SET AttrVeces = @attrVeces
+	WHERE CveEmp = @id AND AttrValor = @horas
+
+	IF @attrVeces = 0
+	BEGIN
+		DELETE FROM AsociadaDocencia 
+		WHERE CveEmp = @id AND AttrVeces = 0 AND AttrNombre = 'horas'
+		
+		SELECT @maximo = MAX(AttrValor) FROM AsociadaDocencia
+		WHERE CveEmp = @id AND AttrNombre = 'horas'
+
+		IF @maximo IS NULL
+		BEGIN
+			SET @maximo = 0
+		END
+		
+		UPDATE TAuxDocencia SET DWMaxHoras = @maximo
+		WHERE CveEmp = @id
+	END
 
 	EXEC usp_updateDW @id, @operacion
 END
@@ -285,7 +354,7 @@ ON Asesoria
 AFTER INSERT
 AS
 BEGIN
-	DECLARE @esc INT, @id INT, @horas INT, @sesion INT, @operacion NVARCHAR(6),
+	DECLARE @esc INT, @id INT, @horas INT, @sesion INT, @operacion VARCHAR(6),
 	 @HDoc INT, @HAse INT, @HInv INT
 	-- Primero sacamos los datos de la tabla inserted. Todo normal.
 	SET @operacion = 'insert'
@@ -323,7 +392,7 @@ AFTER DELETE
 AS
 BEGIN
 	SET NOCOUNT ON
-	DECLARE @esc INT, @id INT, @horas INT, @operacion NVARCHAR(6), @sesion INT, @suma INT,
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6), @sesion INT, @suma INT,
 	@HDoc INT, @HAse INT, @HInv INT
 
 	SET @operacion = 'delete'
@@ -355,7 +424,7 @@ ON Inv
 AFTER INSERT
 AS
 BEGIN
-	DECLARE @esc INT, @id INT, @horas INT, @sesion INT, @operacion NVARCHAR(6),
+	DECLARE @esc INT, @id INT, @horas INT, @sesion INT, @operacion VARCHAR(6),
 	 @HDoc INT, @HAse INT, @HInv INT
 	-- Primero obtenemos los datos de la tabla inserted. Todo normal.
 	SET @operacion = 'insert'
@@ -392,7 +461,7 @@ AFTER DELETE
 AS
 BEGIN
 	SET NOCOUNT ON
-	DECLARE @esc INT, @id INT, @horas INT, @operacion NVARCHAR(6), @sesion INT, @suma INT,
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6), @sesion INT, @suma INT,
 	@HDoc INT, @HAse INT, @HInv INT
 
 	SET @operacion = 'delete'
@@ -459,11 +528,14 @@ SELECT * FROM TablaControl GO
 
 
 
-
+delete from Docencia where CveEmp = 5 and Horas = 50
 
 DELETE FROM Docencia
 
-INSERT INTO Docencia VALUES (20, 5, 15)
+INSERT INTO Docencia VALUES (30, 5, 10)
+GO
+
+INSERT INTO Docencia VALUES (20, 5, 50)
 GO
 
 INSERT INTO Inv VALUES (20, 5, 5)
@@ -487,6 +559,7 @@ GO
 INSERT INTO Asesoria VALUES (30, 5, 15)
 GO
 
+DELETE FROM TAuxDocencia where CveEmp = 5
 
 
 -- ZONA DE PELIGRO
@@ -514,5 +587,5 @@ DROP PROCEDURE usp_updateDW
 GO
 
 DROP TABLE Docencia, Asesoria, Inv, TAuxDocencia, TAuxAsesoria, 
-TAuxInvestigacion, TablaVD, TablaControl, TablaVH
+TAuxInvestigacion, TablaVD, TablaControl, TablaVH, AsociadaDocencia
 GO
