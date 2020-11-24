@@ -309,8 +309,8 @@ AFTER DELETE
 AS
 BEGIN
 	SET NOCOUNT ON
-	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6), @sesion INT, @suma INT,
-	@HDoc INT, @HAse INT, @HInv INT, @attrVeces INT, @maximo INT
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6),
+	@maximo INT, @attrVeces INT
 
 	SET @operacion = 'delete'
 	SELECT @esc = Esc, @id = CveEmp, @horas = Horas
@@ -354,8 +354,8 @@ ON Asesoria
 AFTER INSERT
 AS
 BEGIN
-	DECLARE @esc INT, @id INT, @horas INT, @sesion INT, @operacion VARCHAR(6),
-	 @HDoc INT, @HAse INT, @HInv INT
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6)
+	
 	-- Primero sacamos los datos de la tabla inserted. Todo normal.
 	SET @operacion = 'insert'
 	SELECT @esc = Esc, @id = CveEmp, @horas = Horas
@@ -392,8 +392,7 @@ AFTER DELETE
 AS
 BEGIN
 	SET NOCOUNT ON
-	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6), @sesion INT, @suma INT,
-	@HDoc INT, @HAse INT, @HInv INT
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6)
 
 	SET @operacion = 'delete'
 	-- Primero obtenemos los datos de la tabla deleted. Todo normal.
@@ -424,8 +423,8 @@ ON Inv
 AFTER INSERT
 AS
 BEGIN
-	DECLARE @esc INT, @id INT, @horas INT, @sesion INT, @operacion VARCHAR(6),
-	 @HDoc INT, @HAse INT, @HInv INT
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6)
+	
 	-- Primero obtenemos los datos de la tabla inserted. Todo normal.
 	SET @operacion = 'insert'
 	SELECT @esc = Esc, @id = CveEmp, @horas = Horas
@@ -461,8 +460,7 @@ AFTER DELETE
 AS
 BEGIN
 	SET NOCOUNT ON
-	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6), @sesion INT, @suma INT,
-	@HDoc INT, @HAse INT, @HInv INT
+	DECLARE @esc INT, @id INT, @horas INT, @operacion VARCHAR(6)
 
 	SET @operacion = 'delete'
 	-- Primero saco los datos de la tabla deleted. Todo normal.
