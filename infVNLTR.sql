@@ -74,6 +74,12 @@ CREATE TABLE TablaVD
 GO
 
 
+
+
+drop trigger actualizarDocenciaInsert
+
+
+
 -- Comeinzo del trigger
 CREATE TRIGGER actualizarDocenciaInsert
 ON Docencia
@@ -82,8 +88,9 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	DECLARE @esc INT, @id INT, @horas INT, @sesion INT, @operacion NVARCHAR(6),
-	 @HDoc INT, @HAse INT, @HInv INT
-	-- Primero saco los datos de la tabla inserted. Todo normal.
+	 @HDoc INT, @HAse INT, @HInv INT, @VnIni INT, @VnFin INT
+
+	-- Recuperación de los datos de la tabla inserted
 	SET @operacion = 'insert'
 	SELECT @esc = Esc, @id = CveEmp, @horas = Horas
 	FROM inserted
@@ -94,57 +101,61 @@ BEGIN
 	FROM TADocencia
 	WHERE CveEmp = @id)
 	BEGIN
-		-- Si no está pos lo ponemos nosotros.
+		-- Si no está en la tabla auxiliar se agrega
 		INSERT INTO TADocencia
 			(CveEmp, DWSumHoras)
 		VALUES(@id, @horas)
 	END
 	ELSE
 	BEGIN
-		-- Si está lo actualizamos
+		-- Si se encuentra al docente en la tabla auxiliar se hace update
 		UPDATE TADocencia
 		SET DWSumHoras += @horas
 		WHERE CveEmp = @id
 	END
 
-	SELECT t1.CveEmp, t1.DWSumHoras AS HDoc, t2.DWSumHoras AS HAse, t3.DWSumHoras AS HInv, (t1.DWSumHoras + t2.DWSumHoras + t3.DWSumHoras) AS acc
+	-- A partir de este punto podemos cortar
+	SELECT t1.CveEmp, t1.DWSumHoras AS HDoc, t2.DWSumHoras AS HAse, t3.DWSumHoras AS HInv,
+		(t1.DWSumHoras + t2.DWSumHoras + t3.DWSumHoras) AS acumulado
 	INTO #TWD
 	FROM TADocencia t1
 		JOIN TAAsesoria t2 ON t2.CveEmp = t1.CveEmp
 		JOIN TAInv t3 ON t3.CveEmp = t1.CveEmp
 	WHERE t1.CveEmp = @id
 
+	-- De existir join, entra a este if
 	IF (EXISTS
 	(SELECT 1
 	FROM #TWD))
 	BEGIN
-		SELECT *
-		INTO #S
-		FROM TablaControl
+		-- De la tabla de Control sacamos la sesión actual
 		SELECT @sesion = CurrentVN
-		FROM #S
+		FROM TablaControl
 
 		-- AQUÍ COMIENZA LA ACTUALIZACIÓN
 		IF(@id NOT IN (SELECT CveEmp
 		FROM TablaVH))
 		BEGIN
+			-- Si no está el ID en la tabla VH quiere decir que es la primera vez que hace join
+			-- Lo insertamos en VH
 			INSERT INTO TablaVH
 			VALUES(@id, @sesion)
 
+			-- Insertamos en la tabla de hechos
 			INSERT INTO TablaVD
 			SELECT CveEmp, HDoc, HAse, HInv, @sesion, 2147000, @operacion
 			FROM #TWD
 		END
 		ELSE
 		BEGIN
-			SELECT VnInicio, VnFin
-			INTO #IniFin
+			SELECT @VnIni = VnInicio,
+				@VnFin = VnFin
 			FROM TablaVD
 			WHERE CveEmp = @id AND VnFin = 2147000
 
-			IF (SELECT VnInicio
-			FROM #IniFin) = @sesion
+			IF @VnIni = @sesion
 			BEGIN
+
 				SELECT
 					@HDoc = HDoc,
 					@HAse = HAse,
@@ -156,7 +167,7 @@ BEGIN
 			ELSE
 			BEGIN
 				UPDATE TablaVD SET VNFin = @sesion - 1 
-				WHERE CveEmp = @id AND VnFin = 2147000
+					WHERE CveEmp = @id AND VnFin = 2147000
 
 				INSERT INTO TablaVD
 				SELECT CveEmp, HDoc, HAse, HInv, @sesion, 2147000, @operacion
@@ -188,7 +199,8 @@ BEGIN
 	SET DWSumHoras -= @horas
 	WHERE CveEmp = @id
 
-	SELECT t1.CveEmp, t1.DWSumHoras AS HDoc, t2.DWSumHoras AS HAse, t3.DWSumHoras AS HInv, (t1.DWSumHoras + t2.DWSumHoras + t3.DWSumHoras) AS acc
+	SELECT t1.CveEmp, t1.DWSumHoras AS HDoc, t2.DWSumHoras AS HAse, t3.DWSumHoras AS HInv,
+		(t1.DWSumHoras + t2.DWSumHoras + t3.DWSumHoras) AS acumulado
 	INTO #TWD
 	FROM TADocencia t1
 		JOIN TAAsesoria t2 ON t2.CveEmp = t1.CveEmp
@@ -199,7 +211,7 @@ BEGIN
 	(SELECT 1
 	FROM #TWD))
 	BEGIN
-		IF (SELECT acc
+		IF (SELECT acumulado
 		FROM #TWD) = 0
 		BEGIN
 			DELETE FROM TADocencia WHERE CveEmp = @id
@@ -331,65 +343,7 @@ BEGIN
 		WHERE CveEmp = @id
 	END
 
-	SELECT t1.CveEmp, t1.DWSumHoras AS HDoc, t2.DWSumHoras AS HAse, t3.DWSumHoras AS HInv, (t1.DWSumHoras + t2.DWSumHoras + t3.DWSumHoras) AS acc
-	INTO #TWD
-	FROM TADocencia t1
-		JOIN TAAsesoria t2 ON t2.CveEmp = t1.CveEmp
-		JOIN TAInv t3 ON t3.CveEmp = t1.CveEmp
-	WHERE t1.CveEmp = @id
-
-	IF (EXISTS
-	(SELECT 1
-	FROM #TWD))
-	BEGIN
-		SELECT *
-		INTO #S
-		FROM TablaControl
-		SELECT @sesion = CurrentVN
-		FROM #S
-
-		-- AQUÍ COMIENZA LA ACTUALIZACIÓN
-		IF(@id NOT IN (SELECT CveEmp
-		FROM TablaVH))
-		BEGIN
-			INSERT INTO TablaVH
-			VALUES(@id, @sesion)
-
-			INSERT INTO TablaVD
-			SELECT CveEmp, HDoc, HAse, HInv, @sesion, 2147000, @operacion
-			FROM #TWD
-		END
-		ELSE
-		BEGIN
-			SELECT VnInicio, VnFin
-			INTO #IniFin
-			FROM TablaVD
-			WHERE CveEmp = @id AND VnFin = 2147000
-
-			IF (SELECT VnInicio
-			FROM #IniFin) = @sesion
-			BEGIN
-				SELECT
-					@HDoc = HDoc,
-					@HAse = HAse,
-					@HInv = HInv
-				FROM #TWD
-
-				UPDATE TablaVD SET HDoc = @HDoc, HAse = @HAse, HInv = @HInv, operacion = @operacion
-			END
-			ELSE
-			BEGIN
-				UPDATE TablaVD SET VNFin = @sesion - 1 
-				WHERE CveEmp = @id AND VnFin = 2147000
-
-				INSERT INTO TablaVD
-				SELECT CveEmp, HDoc, HAse, HInv, @sesion, 2147000, @operacion
-				FROM #TWD
-			END
-		END
-		UPDATE TablaVH SET UltimoVN = @sesion
-		UPDATE TablaControl SET MaintenanceActive = 'True'
-	END
+	EXEC usp_updateDW
 END
 GO
 
@@ -799,4 +753,190 @@ DELETE FROM TablaVD
 GO
 
 DELETE FROM TablaControl 
+GO
+
+CREATE PROCEDURE usp_updateDWDELETE FROM TablaVD 
+GO
+
+DELETE FROM TablaControl 
+GO
+
+CREATE PROCEDURE usp_updateDWDELETE FROM TablaVD 
+GO
+
+DELETE FROM TablaControl 
+GO
+
+CREATE PROCEDURE usp_updateDWDELETE FROM TablaVD 
+GO
+
+DELETE FROM TablaControl 
+GO
+
+CREATE PROCEDURE usp_updateDWDELETE FROM TablaVD 
+GO
+
+DELETE FROM TablaControl 
+GO
+
+CREATE PROCEDURE usp_updateDW
+BEGIN
+	SELECT t1.CveEmp, t1.DWSumHoras AS HDoc, t2.DWSumHoras AS HAse, t3.DWSumHoras AS HInv, (t1.DWSumHoras + t2.DWSumHoras + t3.DWSumHoras) AS acc
+	INTO #TWD
+	FROM TADocencia t1
+		JOIN TAAsesoria t2 ON t2.CveEmp = t1.CveEmp
+		JOIN TAInv t3 ON t3.CveEmp = t1.CveEmp
+	WHERE t1.CveEmp = @id
+
+	IF (EXISTS
+	(SELECT 1
+	FROM #TWD))
+	BEGIN
+		SELECT *
+		INTO #S
+		FROM TablaControl
+		SELECT @sesion = CurrentVN
+		FROM #S
+
+		-- AQUÍ COMIENZA LA ACTUALIZACIÓN
+		IF(@id NOT IN (SELECT CveEmp
+		FROM TablaVH))
+		BEGIN
+			INSERT INTO TablaVH
+			VALUES(@id, @sesion)
+
+			INSERT INTO TablaVD
+			SELECT CveEmp, HDoc, HAse, HInv, @sesion, 2147000, @operacion
+			FROM #TWD
+		END
+		ELSE
+		BEGIN
+			SELECT VnInicio, VnFin
+			INTO #IniFin
+			FROM TablaVD
+			WHERE CveEmp = @id AND VnFin = 2147000
+
+			IF (SELECT VnInicio
+			FROM #IniFin) = @sesion
+			BEGIN
+				SELECT
+					@HDoc = HDoc,
+					@HAse = HAse,
+					@HInv = HInv
+				FROM #TWD
+
+				UPDATE TablaVD SET HDoc = @HDoc, HAse = @HAse, HInv = @HInv, operacion = @operacion
+			END
+			ELSE
+			BEGIN
+				UPDATE TablaVD SET VNFin = @sesion - 1 
+				WHERE CveEmp = @id AND VnFin = 2147000
+
+				INSERT INTO TablaVD
+				SELECT CveEmp, HDoc, HAse, HInv, @sesion, 2147000, @operacion
+				FROM #TWD
+			END
+		END
+		UPDATE TablaVH SET UltimoVN = @sesion
+		UPDATE TablaControl SET MaintenanceActive = 'True'
+	END
+	ENDDELETE FROM TablaVD 
+GO
+
+
+
+DELETE FROM Docencia 
+GO
+
+DELETE FROM Asesoria 
+GO
+
+DELETE FROM Inv 
+GO
+
+DELETE FROM TAAsesoria 
+GO
+
+DELETE FROM TADocencia 
+GO
+
+DELETE FROM TAInv 
+GO
+
+DELETE FROM TablaVD 
+GO
+
+DELETE FROM TablaVH 
+GO
+
+DELETE FROM TablaControl 
+GO
+
+INSERT INTO TablaControl VALUES(1,0)
+GO
+
+
+
+
+SELECT * FROM TADocencia GO
+
+SELECT * FROM TAAsesoria GO
+
+SELECT * FROM TAInv GO
+
+SELECT * FROM TablaVD GO
+
+SELECT * FROM TablaVH GO
+
+SELECT * FROM TablaControl GO
+
+
+
+
+
+
+
+
+INSERT INTO Docencia VALUES (1,5,15)
+GO
+
+INSERT INTO Asesoria VALUES (1,5,4)
+GO
+
+INSERT INTO Inv VALUES (1,5,5)
+GO
+
+UPDATE TablaControl SET CurrentVN = 20, MaintenanceActive = 'False'
+GO
+
+INSERT INTO Docencia VALUES (1,2,15)
+GO
+
+INSERT INTO Asesoria VALUES (1,2,4)
+GO
+
+INSERT INTO Inv VALUES (1,2,5)
+GO
+
+INSERT INTO Docencia VALUES (1,5,1)
+GO
+
+
+
+
+
+
+
+
+select * from INFORMATION_SCHEMA.tables
+
+
+
+
+
+-- CREACIÓN SP
+CREATE PROCEDURE usp_updateDW
+GO
+
+CREATE PROCEDURE usp_updateDWDELETE FROM TablaVD 
 GO
