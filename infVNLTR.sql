@@ -751,6 +751,7 @@ FROM TablaVD GO
 SELECT *
 FROM TablaControl GO
 
+-- PRUEBAS
 
 INSERT INTO TablaControl
 VALUES(1, 0)
