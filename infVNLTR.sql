@@ -148,6 +148,7 @@ BEGIN
 		END
 		ELSE
 		BEGIN
+			-- Ya existía en el almacén
 			SELECT @VnIni = VnInicio,
 				@VnFin = VnFin
 			FROM TablaVD
@@ -935,6 +936,16 @@ select * from INFORMATION_SCHEMA.tables
 
 
 -- CREACIÓN SP
+CREATE PROCEDURE usp_updateDW
+GO
+
+CREATE PROCEDURE usp_updateDWDELETE FROM TablaVD 
+GO
+CREATE PROCEDURE usp_updateDW
+GO
+
+CREATE PROCEDURE usp_updateDWDELETE FROM TablaVD 
+GO
 CREATE PROCEDURE usp_updateDW
 GO
 
