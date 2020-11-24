@@ -29,23 +29,23 @@ CREATE TABLE Inv
 )
 GO
 
-CREATE TABLE TADocencia
+CREATE TABLE TAuxDocencia
 (
 	CveEmp INT PRIMARY KEY,
 	DWSumHoras INT
 )
 GO
 
-CREATE TABLE TAAsesoria
+CREATE TABLE TAuxAsesoria
 (
 	CveEmp INT PRIMARY KEY,
 	DWSumHoras INT,
 	DWCountHoras INT,
-	DWAvgHoras NUMERIC(10, 2)
+	DWAvgHoras NUMERIC(6, 2)
 )
 GO
 
-CREATE TABLE TAInv
+CREATE TABLE TAuxInvestigacion
 (
 	CveEmp INT PRIMARY KEY,
 	DWSumHoras INT,
@@ -80,7 +80,6 @@ CREATE TABLE TablaVD
 )
 GO
 
-
 -- PROCEDIMIENTO ALMACENADO
 CREATE PROCEDURE usp_updateDW (@id INT, @operacion NVARCHAR(6))
 AS
@@ -88,14 +87,15 @@ BEGIN
 	DECLARE @sesion INT, @VnIni INT, @VnFin INT, @HDoc INT, @HAse INT,
 	@HInv INT, @suma INT
 
+
 	SELECT t1.CveEmp, t1.DWSumHoras AS HDoc, t2.DWSumHoras AS HAse, t3.DWSumHoras AS HInv,
 		(t1.DWSumHoras + t2.DWSumHoras + t3.DWSumHoras) AS acumulado
 	INTO #TWD
-	FROM TADocencia t1
-		JOIN TAAsesoria t2 ON t2.CveEmp = t1.CveEmp
-		JOIN TAInv t3 ON t3.CveEmp = t1.CveEmp
+	FROM TAuxDocencia t1
+		JOIN TAuxAsesoria t2 ON t2.CveEmp = t1.CveEmp
+		JOIN TAuxInvestigacion t3 ON t3.CveEmp = t1.CveEmp
 	WHERE t1.CveEmp = @id
-
+	
 	-- De existir join, entra a este if
 	IF (EXISTS
 	(SELECT 1
@@ -109,9 +109,9 @@ BEGIN
 			FROM #TWD) = 0
 			BEGIN
 				-- Este if entra si el acumulado de las funciones de agregación es cero
-				DELETE FROM TADocencia WHERE CveEmp = @id
-				DELETE FROM TAInv WHERE CveEmp = @id
-				DELETE FROM TAAsesoria WHERE CveEmp = @id
+				DELETE FROM TAuxDocencia WHERE CveEmp = @id
+				DELETE FROM TAuxInvestigacion WHERE CveEmp = @id
+				DELETE FROM TAuxAsesoria WHERE CveEmp = @id
 
 			END
 			ELSE
@@ -121,33 +121,33 @@ BEGIN
 				
 				-- Buscamos si alguna de las tablas auxiliares queda en cero
 				SELECT @suma = DWSumHoras
-				FROM TADocencia
+				FROM TAuxDocencia
 				WHERE CveEmp = @id
 
 				IF (@suma) = 0
 				BEGIN
 					SET @sumaCero = 1
-					DELETE FROM TADocencia WHERE CveEmp = @id
+					DELETE FROM TAuxDocencia WHERE CveEmp = @id
 				END
 
 				SELECT @suma = DWSumHoras
-				FROM TAInv
+				FROM TAuxInvestigacion
 				WHERE CveEmp = @id
 
 				IF (@suma) = 0
 				BEGIN
 					SET @sumaCero = 1
-					DELETE FROM TAInv WHERE CveEmp = @id
+					DELETE FROM TAuxInvestigacion WHERE CveEmp = @id
 				END
 
 				SELECT @suma =  DWSumHoras
-				FROM TAAsesoria
+				FROM TAuxAsesoria
 				WHERE CveEmp = @id
 				
 				IF (@suma) = 0
 				BEGIN
 					SET @sumaCero = 1
-					DELETE FROM TAAsesoria WHERE CveEmp = @id
+					DELETE FROM TAuxAsesoria WHERE CveEmp = @id
 				END
 
 				-- Si alguna quedó en cero se borraron datos de la tabla auxiliar para
@@ -235,18 +235,18 @@ BEGIN
 	-- Aquí es donde checamos si el docente que se acaba de insertar en docencia
 	-- Ya está en la tabla auxiliar
 	IF NOT EXISTS(SELECT *
-	FROM TADocencia
+	FROM TAuxDocencia
 	WHERE CveEmp = @id)
 	BEGIN
 		-- Si no está en la tabla auxiliar se agrega
-		INSERT INTO TADocencia
+		INSERT INTO TAuxDocencia
 			(CveEmp, DWSumHoras)
 		VALUES(@id, @horas)
 	END
 	ELSE
 	BEGIN
 		-- Si se encuentra al docente en la tabla auxiliar se hace update
-		UPDATE TADocencia
+		UPDATE TAuxDocencia
 		SET DWSumHoras += @horas
 		WHERE CveEmp = @id
 	END
@@ -268,8 +268,8 @@ BEGIN
 	SET @operacion = 'delete'
 	SELECT @esc = Esc, @id = CveEmp, @horas = Horas
 	FROM deleted
-	UPDATE TADocencia
 
+	UPDATE TAuxDocencia
 	SET DWSumHoras -= @horas
 	WHERE CveEmp = @id
 
@@ -295,18 +295,18 @@ BEGIN
 	-- Aquí es donde checamos si el docente que se acaba de insertar en docencia
 	-- Ya está en la tabla auxiliar
 	IF NOT EXISTS(SELECT *
-	FROM TAAsesoria
+	FROM TAuxAsesoria
 	WHERE CveEmp = @id)
 	BEGIN
 		-- Si no está lo ponemos nosotros.
-		INSERT INTO TAAsesoria
+		INSERT INTO TAuxAsesoria
 			(CveEmp, DWSumHoras, DWCountHoras, DWAvgHoras)
 		VALUES(@id, @horas, 1, @horas)
 	END
 	ELSE
 	BEGIN
 		-- Si ya está lo actualizamos
-		UPDATE TAAsesoria
+		UPDATE TAuxAsesoria
 		SET DWSumHoras += @horas, DWCountHoras += 1,
 			DWAvgHoras = CAST(DWSumHoras+@horas AS NUMERIC(6, 2))/CAST(DWCountHoras+1 AS NUMERIC(6, 2))
 		WHERE CveEmp = @id
@@ -333,14 +333,14 @@ BEGIN
 
 	DECLARE @AVG NUMERIC(6, 2)
 	SET @AVG = 0
-	IF 1 < (SELECT DWCountHoras FROM TAAsesoria WHERE CveEmp = @id)
+	IF 1 < (SELECT DWCountHoras FROM TAuxAsesoria WHERE CveEmp = @id)
 	BEGIN
 		DECLARE @DWSumHoras INT, @DWCountHoras INT
-		SELECT @DWSumHoras = DWSumHoras, @DWCountHoras = DWCountHoras FROM TAAsesoria WHERE CveEmp = @id
+		SELECT @DWSumHoras = DWSumHoras, @DWCountHoras = DWCountHoras FROM TAuxAsesoria WHERE CveEmp = @id
 		SET @AVG = cast(@DWSumHoras-@horas as numeric(6, 2))/cast(@DWCountHoras-1 as numeric(6, 2))
 	END
 
-	UPDATE TAAsesoria
+	UPDATE TAuxAsesoria
 	SET DWSumHoras -= @horas, DWCountHoras -= 1, DWAvgHoras = @AVG
 	WHERE CveEmp = @id
 
@@ -365,19 +365,19 @@ BEGIN
 	-- Aquí es donde checamos si el docente que se acaba de insertar en investigación
 	-- Ya está en la tabla auxiliar
 	IF NOT EXISTS(SELECT *
-	FROM TAInv
+	FROM TAuxInvestigacion
 	WHERE CveEmp = @id)
 	BEGIN
 		-- Si no está lo ponemos nosotros.
-		INSERT INTO TAInv
+		INSERT INTO TAuxInvestigacion
 			(CveEmp, DWSumHoras, DWCountHoras)
 		VALUES(@id, @horas, 1)
 	END
 	ELSE
 	BEGIN
 		-- Si ya está lo actualizamos
-		UPDATE TAInv
-		SELECT DWSumHoras += @horas, DWCountHoras += 1
+		UPDATE TAuxInvestigacion
+		SET DWSumHoras += @horas, DWCountHoras += 1
 		WHERE CveEmp = @id
 	END
 	
@@ -399,9 +399,9 @@ BEGIN
 	-- Primero saco los datos de la tabla deleted. Todo normal.
 	SELECT @esc = Esc, @id = CveEmp, @horas = Horas
 	FROM deleted
-	UPDATE TAInv
 
-	SELECT DWSumHoras -= @horas, DWCountHoras -= 1
+	UPDATE TAuxInvestigacion
+	SET DWSumHoras -= @horas, DWCountHoras -= 1
 	WHERE CveEmp = @id
 
 	EXEC usp_updateDW @id, @operacion
@@ -410,6 +410,8 @@ GO
 
 
 
+
+-- PRUEBAS
 DELETE FROM Docencia 
 GO
 
@@ -419,13 +421,13 @@ GO
 DELETE FROM Inv 
 GO
 
-DELETE FROM TAAsesoria 
+DELETE FROM TAuxAsesoria 
 GO
 
-DELETE FROM TADocencia 
+DELETE FROM TAuxDocencia 
 GO
 
-DELETE FROM TAInv 
+DELETE FROM TAuxInvestigacion 
 GO
 
 DELETE FROM TablaVD 
@@ -443,11 +445,11 @@ GO
 
 
 
-SELECT * FROM TADocencia GO
+SELECT * FROM TAuxDocencia GO
 
-SELECT * FROM TAAsesoria GO
+SELECT * FROM TAuxAsesoria GO
 
-SELECT * FROM TAInv GO
+SELECT * FROM TAuxInvestigacion GO
 
 SELECT * FROM TablaVD GO
 
@@ -459,7 +461,7 @@ SELECT * FROM TablaControl GO
 
 
 
-
+DELETE FROM Docencia
 
 INSERT INTO Docencia VALUES (20, 5, 15)
 GO
@@ -483,4 +485,34 @@ UPDATE TablaControl SET CurrentVN = 2, MaintenanceActive = 'False'
 GO
 
 INSERT INTO Asesoria VALUES (30, 5, 15)
+GO
+
+
+
+-- ZONA DE PELIGRO
+SELECT * FROM INFORMATION_SCHEMA.tables
+
+DROP TRIGGER actualizarDocenciaInsert
+GO
+
+DROP TRIGGER actualizarDocenciaDelete
+GO
+
+DROP TRIGGER actualizarAsesoriaInsert
+GO
+
+DROP TRIGGER actualizarAsesoriaDelete
+GO
+
+DROP TRIGGER actualizarInvInsert
+GO
+
+DROP TRIGGER actualizarInvDelete
+GO
+
+DROP PROCEDURE usp_updateDW
+GO
+
+DROP TABLE Docencia, Asesoria, Inv, TAuxDocencia, TAuxAsesoria, 
+TAuxInvestigacion, TablaVD, TablaControl, TablaVH
 GO
