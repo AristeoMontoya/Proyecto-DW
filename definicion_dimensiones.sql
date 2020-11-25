@@ -230,16 +230,16 @@ CREATE TABLE HechosImportacion
 )
 GO
 
-
 INSERT INTO HechosImportacion
 	(PaisDestino, Fecha, Producto, Marca, ImporteTotal)
-SELECT dpais.Id, dtiempo.Fecha, dprod.Id, dmarca.Id, Importe AS ImporteTotal
+SELECT dpais.Id, dtiempo.Fecha, dprod.Id, dmarca.Id, SUM(Importe) AS ImporteTotal
 FROM Operaciones
 	JOIN dimensionPaises AS dpais ON  dpais.NombrePais = Operaciones.PaisDestino
 	JOIN DimensionTiempo AS dtiempo ON dtiempo.Fecha = Operaciones.Fecha
 	JOIN DimensionProducto AS dprod ON dprod.Producto = Operaciones.Producto
 	JOIN DimensionMarca AS dmarca ON dmarca.Empresa = Operaciones.Marca
 WHERE Movimiento = 'Imports'
+GROUP BY dpais.Id, dtiempo.Fecha, dprod.Id, dmarca.Id
 GO
 
 
