@@ -524,22 +524,28 @@ SELECT * FROM TablaVH GO
 
 SELECT * FROM TablaControl GO
 
+select * from AsociadaDocencia
 
+select * from Docencia
+
+delete from Docencia where Horas = 10
 
 delete from Docencia where CveEmp = 5 and Horas = 50
 
 DELETE FROM Docencia
 
-INSERT INTO Docencia VALUES (30, 5, 10)
+INSERT INTO Docencia VALUES (30, 5, 5)
 GO
 
 INSERT INTO Docencia VALUES (20, 5, 50)
 GO
 
+delete from Asesoria where Horas = 17
+
 INSERT INTO Inv VALUES (20, 5, 5)
 GO
 
-INSERT INTO Asesoria VALUES (20, 5, 3)
+INSERT INTO Asesoria VALUES (30, 5, 17)
 GO
 
 INSERT INTO Asesoria VALUES (30, 5, 4)
@@ -551,7 +557,7 @@ GO
 DELETE FROM Asesoria Where Esc = 30 AND CveEmp = 5 AND Horas = 4
 GO
 
-UPDATE TablaControl SET CurrentVN = 2, MaintenanceActive = 'False'
+UPDATE TablaControl SET CurrentVN = 3, MaintenanceActive = 'False'
 GO
 
 INSERT INTO Asesoria VALUES (30, 5, 15)
@@ -587,3 +593,5 @@ GO
 DROP TABLE Docencia, Asesoria, Inv, TAuxDocencia, TAuxAsesoria, 
 TAuxInvestigacion, TablaVD, TablaControl, TablaVH, AsociadaDocencia
 GO
+
+delete from Docencia where Horas = 50
